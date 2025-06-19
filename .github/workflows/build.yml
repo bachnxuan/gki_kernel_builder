@@ -1,0 +1,44 @@
+name: Kernel Builder
+permissions:
+  contents: write
+  actions: write
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  default:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 🔍 Checkout code & init submodules
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+          fetch-depth: 1
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.13"
+          
+      - name: 🔄 Setup swap
+        uses: pierotofy/set-swap-space@v1.0
+        with:
+          swap-size-gb: 8
+
+      - name: 🛠️ Setup ccache
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          max-size: 7.5G
+
+      - name: 🔢 Fetching commit sha
+        run: echo "SHORT_SHA=${GITHUB_SHA::8}" >> $GITHUB_ENV
+
+      - name: 🔥 Build
+        run: |
+          python3 ./main.py
