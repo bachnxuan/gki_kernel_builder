@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Final
 
 # ====== Paths ======
-ROOT: Final[Path] = Path(__file__).resolve().parent
+ROOT: Final[Path] = Path(__file__).resolve().parent.parent
 WORKSPACE: Final[Path] = ROOT / "kernel"
 TOOLCHAIN: Final[Path] = Path("/opt/toolchain")
 
