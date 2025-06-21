@@ -1,0 +1,8 @@
+[project]
+name = "python-gki-builder"
+version = "0.1.0"
+requires-python = ">=3.11"
+description = "A simple Python GKI kernel builder"
+readme = "README.md"
+license = "The Unlicense"
+license-files = ["LICEN[CS]E.*"]
