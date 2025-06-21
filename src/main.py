@@ -92,7 +92,7 @@ class KernelBuilder:
             tar.extractall(CLANG)
 
         # ====== Build  ======
-        chdir(WORKSPACE) # Enter Workspace
+        chdir(WORKSPACE)  # Enter Workspace
         _ = self.build()
 
 

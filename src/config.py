@@ -37,9 +37,7 @@ MKBOOTIMG: Final[dict[str, str]] = {
     "to": str(TOOLCHAIN / "mkbootimg"),
 }
 
-SOURCES: Final[list[dict[str, str]]] = [
-    KERNEL, ANYKERNEL, BUILD_TOOL, MKBOOTIMG
-]
+SOURCES: Final[list[dict[str, str]]] = [KERNEL, ANYKERNEL, BUILD_TOOL, MKBOOTIMG]
 
 # ====== Clang ======
 CLANG: Final[Path] = Path("/opt/toolchain/clang")
@@ -48,8 +46,8 @@ CLANG_TAR: Final[str] = (
 )
 
 # ====== Cross Compile ======
-CLANG_TRIPLE: Final[str] ="aarch64-linux-gnu-"
-CROSS_COMPILE: Final[str] ="aarch64-linux-gnu-"
+CLANG_TRIPLE: Final[str] = "aarch64-linux-gnu-"
+CROSS_COMPILE: Final[str] = "aarch64-linux-gnu-"
 
 if __name__ == "__main__":
     raise SystemExit("This file is meant to be imported, not executed.")
