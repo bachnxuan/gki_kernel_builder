@@ -21,8 +21,15 @@ def setup_env() -> None:
     os.environ["CROSS_COMPILE"] = CROSS_COMPILE
 
     # ====== LLVM ======
-    os.environ["LLVM"] = "1"  # Force uses of LLVM binutils
-    os.environ["LLVM_IAS"] = "1"  # Force Clang IAS
+    # Force LLVM binutils and Clang IAS
+    os.environ["LLVM"] = "1"
+    os.environ["LLVM_IAS"] = "1"
+
+    # Force Thin LTO
+    os.environ["CONFIG_LTO_CLANG_THIN"] = "y"
+    os.environ["CONFIG_LTO_CLANG_FULL"] = "n"
+
+    # Manually config LD path
     os.environ["LD"] = str(CLANG_BIN / "ld.lld")
 
 
