@@ -38,11 +38,6 @@ jobs:
           remove-swapfile: 'true'        # Frees ~4 GB
           remove-cached-tools: 'false'   # Avoid unless confirmed safe
           verbose: 'true'                # Enable detailed logging
-          
-      - name: 🔄 Setup swap
-        uses: pierotofy/set-swap-space@v1.0
-        with:
-          swap-size-gb: 8
 
       - name: 🛠️ Setup ccache
         uses: hendrikmuhs/ccache-action@v1.2
