@@ -1,4 +1,4 @@
-name: Kernel Builder
+name: Linter
 permissions:
   contents: write
   actions: write
