@@ -7,8 +7,12 @@ on:
   workflow_dispatch:
   push:
     branches: [ "master" ]
+    paths:
+      - 'src/*.py'
   pull_request:
     branches: [ "master" ]
+    paths:
+      - 'src/*.py'
 
 jobs:
   linter:
