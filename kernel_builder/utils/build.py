@@ -1,7 +1,6 @@
-from sh import Command
 import os
 import re
-import sh
+from sh import make
 from os import cpu_count
 from pathlib import Path
 from dataclasses import dataclass, field
@@ -12,10 +11,6 @@ from kernel_builder.utils.fs import FileSystem
 from kernel_builder.utils.shell import Shell
 from kernel_builder.utils.log import log
 from typing import ClassVar
-
-make: Command = sh.Command("make").bake(
-    _env={**os.environ, "CC": "ccache clang", "CXX": "ccache clang++"},
-)
 
 
 @dataclass(slots=True)
@@ -32,7 +27,13 @@ class Builder:
     def _make(
         self, args: list[str] | None = None, *, jobs: int, out: str | Path
     ) -> None:
-        make(f"-j{jobs}", *(args or []), f"O={out}", _cwd=Path.cwd())
+        make(
+            f"-j{jobs}",
+            *(args or []),
+            f"O={out}",
+            _cwd=Path.cwd(),
+            _env={**os.environ, "CC": "ccache clang", "CXX": "ccache clang++"},
+        )
 
     def build(
         self,
@@ -48,7 +49,7 @@ class Builder:
         configurator()
 
         log("Making oldefconfig")
-        make("olddefconfig", f"O={out}")
+        self._make(["oldefconfig"], jobs=(jobs or self.jobs), out=out)
 
         log("Defconfig completed. Starting full build.")
         self._make(jobs=(jobs or self.jobs), out=out)
