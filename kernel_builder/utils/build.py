@@ -48,8 +48,8 @@ class Builder:
 
         configurator()
 
-        log("Making oldefconfig")
-        self._make(["oldefconfig"], jobs=(jobs or self.jobs), out=out)
+        log("Making olddefconfig")
+        self._make(["olddefconfig"], jobs=(jobs or self.jobs), out=out)
 
         log("Defconfig completed. Starting full build.")
         self._make(jobs=(jobs or self.jobs), out=out)
