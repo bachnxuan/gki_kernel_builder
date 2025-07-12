@@ -1,6 +1,5 @@
 from sh import Command
-
-
+import os
 import re
 import sh
 from os import cpu_count
@@ -15,7 +14,7 @@ from kernel_builder.utils.log import log
 from typing import ClassVar
 
 make: Command = sh.Command("make").bake(
-    _env={"CC": "ccache clang", "CXX": "ccache clang++"},
+    _env={**os.environ, "CC": "ccache clang", "CXX": "ccache clang++"},
 )
 
 
