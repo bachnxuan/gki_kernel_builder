@@ -1,13 +1,8 @@
-import subprocess
-
-from subprocess import CompletedProcess
+from sh import curl, bash
 from kernel_builder.utils.log import log
 from kernel_builder.utils.net import Net
 from kernel_builder.utils.source import SourceManager
 from kernel_builder.utils import env
-from typing import TypeAlias
-
-Proc: TypeAlias = CompletedProcess[bytes]
 
 
 class KSUInstaller:
@@ -22,7 +17,7 @@ class KSUInstaller:
         self.variant: str = env.ksu_variant()
         self.use_susfs: bool = env.susfs_enabled()
 
-    def _install_ksu(self, url: str, ref: str | None) -> Proc:
+    def _install_ksu(self, url: str, ref: str | None) -> None:
         if not self.source.is_simplified(url):
             url = self.source.git_simplifier(url)
 
@@ -34,17 +29,9 @@ class KSUInstaller:
 
         log(f"Installing KernelSU from {url} | {ref}")
 
-        curl: Proc = subprocess.run(
-            ["curl", "-LSs", setup_url], stdout=subprocess.PIPE, check=True
-        )
+        bash("-s", ref, _in=curl("-LSs", setup_url))
 
-        return subprocess.run(
-            ["bash", "-s", ref],
-            input=curl.stdout,
-            check=True,
-        )
-
-    def install(self) -> Proc | None:
+    def install(self) -> None:
         variant: str = self.variant.upper()
 
         match variant:

@@ -13,16 +13,21 @@ dependencies = [
     "requests>=2.32.4",
     "rich>=14.0.0",
     "ruff>=0.12.0",
+    "sh>=2.2.2",
 ]
 
 [tool.ruff]
-extend-exclude = ["tests"]
+extend-exclude = ["tests", "typings"]
 
 [tool.basedpyright]
 include = ["kernel_builder"]
 exclude = ["tests"]
+
+pythonVersion = "3.12"
+pythonPlatform  = "Linux"
 typeCheckingMode = "recommended"
+stubPath = "typings"
+
 reportUnusedCallResult = "none"
-reportExplicitAny = "none"
-reportAny = "none"
-pythonPlatform = "Linux"
+reportExplicitAny      = "none"
+reportAny              = "none"

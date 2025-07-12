@@ -1,13 +1,8 @@
-from subprocess import CompletedProcess
 from kernel_builder.utils import env
 from kernel_builder.config.config import PATCHES
 from kernel_builder.utils.shell import Shell
 from kernel_builder.utils.log import log
-from typing import TypeAlias
 from pathlib import Path
-
-
-Proc: TypeAlias = CompletedProcess[bytes]
 
 
 class LXCPatcher:
@@ -16,7 +11,7 @@ class LXCPatcher:
         self.lxc: bool = env.lxc_enabled()
         self.susfs: bool = env.susfs_enabled()
 
-    def apply(self) -> Proc | None:
+    def apply(self) -> None:
         LXC: Path = PATCHES / "lxc.patch"
         if self.lxc:
             log("Applying LXC Patches")

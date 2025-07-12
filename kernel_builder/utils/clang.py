@@ -3,9 +3,9 @@ from requests.models import Response
 import requests
 import tarfile
 
+from sh import aria2c
 from kernel_builder.config.config import TOOLCHAIN
 from kernel_builder.utils.fs import FileSystem
-from kernel_builder.utils.shell import Shell
 from kernel_builder.utils.log import log
 from typing import Any
 
@@ -38,22 +38,18 @@ def fetch_latest_aosp_clang(
     filename: str = Path(release_url).name
     download_path: Path = dest / filename
 
-    shell: Shell = Shell()
-    shell.run(
-        [
-            "aria2c",
-            "-x16",
-            "-s32",
-            "-k8M",
-            "--file-allocation=falloc",
-            "--timeout=60",
-            "--retry-wait=5",
-            "-d",
-            str(dest),
-            "-o",
-            filename,
-            release_url,
-        ]
+    aria2c(
+        "-x16",
+        "-s32",
+        "-k8M",
+        "--file-allocation=falloc",
+        "--timeout=60",
+        "--retry-wait=5",
+        "-d",
+        str(dest),
+        "-o",
+        filename,
+        release_url,
     )
 
     out_dir: Path = dest / "clang"

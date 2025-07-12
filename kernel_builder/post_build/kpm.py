@@ -1,8 +1,9 @@
 import shutil
 import gzip
-import subprocess
 
 from pathlib import Path
+
+from sh import Command
 from kernel_builder.utils.fs import FileSystem
 from kernel_builder.utils.log import log
 from kernel_builder.config.config import WORKSPACE
@@ -42,21 +43,19 @@ class KPMPatcher:
             with gzip.open(gz_in, "rb") as fsrc, img.open("wb") as fdst:
                 shutil.copyfileobj(fsrc, fdst)
 
-            subprocess.run(
-                [
-                    str(temp / "kptools"),
-                    "-p",
-                    "-s",
-                    "123",
-                    "-i",
-                    "Image",
-                    "-k",
-                    str(temp / "kpimg"),
-                    "-o",
-                    "oImage",
-                ],
-                cwd=str(temp),
-                check=True,
+            kptools: Command = Command(str(temp / "kptools"))
+
+            kptools(
+                str(temp / "kptools"),
+                "-p",
+                "-s",
+                "123",
+                "-i",
+                "Image",
+                "-k",
+                str(temp / "kpimg"),
+                "-o",
+                "oImage",
             )
 
             patched: Path = temp / "oImage"

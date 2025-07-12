@@ -1,6 +1,6 @@
 import re
 import requests
-
+from sh import git
 from dataclasses import dataclass, field
 from subprocess import CompletedProcess
 from kernel_builder.config.manifest import SOURCES
@@ -50,7 +50,7 @@ class SourceManager:
 
     def clone_repo(
         self, repo: dict[str, str], *, depth: int = 1, args: list[str] | None = None
-    ) -> Proc:
+    ) -> None:
         """
         Clone a git repository.
 
@@ -59,18 +59,14 @@ class SourceManager:
         :param args: Additional arguments to pass to git clone.
         :return: Proc
         """
-        return self.shell.run(
-            [
-                "git",
-                "clone",
-                "--depth",
-                str(depth),
-                "-b",
-                repo["branch"],
-                *(args or []),
-                self.restore_simplified(repo["url"]),
-                repo["to"],
-            ]
+        return git.clone(
+            "--depth",
+            str(depth),
+            "-b",
+            repo["branch"],
+            *(args or []),
+            self.restore_simplified(repo["url"]),
+            repo["to"],
         )
 
     def clone_sources(self) -> None:

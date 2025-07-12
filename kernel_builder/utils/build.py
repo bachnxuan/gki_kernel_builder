@@ -1,4 +1,5 @@
 import re
+from sh import make
 from os import cpu_count
 from subprocess import CompletedProcess
 from pathlib import Path
@@ -27,17 +28,14 @@ class Builder:
 
     def _make(
         self, args: list[str] | None = None, *, jobs: int, out: str | Path
-    ) -> Proc:
-        return self.shell.run(
-            [
-                "make",
-                f"-j{jobs}",
-                "CC=ccache clang",
-                "CXX=ccache clang++",
-                *(args or []),
-                f"O={out}",
-            ],
-            verbose=True,
+    ) -> None:
+        make(
+            "make",
+            f"-j{jobs}",
+            "CC=ccache clang",
+            "CXX=ccache clang++",
+            *(args or []),
+            f"O={out}",
         )
 
     def build(
@@ -54,7 +52,7 @@ class Builder:
         configurator()
 
         log("Making oldefconfig")
-        self.shell.run(["make", "olddefconfig", f"O={out}"])
+        make("olddefconfig", f"O={out}")
 
         log("Defconfig completed. Starting full build.")
         self._make(jobs=(jobs or self.jobs), out=out)
