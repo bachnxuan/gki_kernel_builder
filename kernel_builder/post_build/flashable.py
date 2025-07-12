@@ -65,12 +65,10 @@ class FlashableBuilder:
         log("Starting boot image creation process...")
 
         boot_tmp = WORKSPACE / "boot"
-        unpacker: Command = Command(
-            "python3", str(TOOLCHAIN / "mkbootimg" / "unpack_bootimg.py")
-        )
-        mkbootimg: Command = Command(
-            "python3", str(TOOLCHAIN / "mkbootimg" / "mkbootimg.py")
-        )
+        python = Command("python3")
+
+        unpacker: Path = TOOLCHAIN / "mkbootimg" / "unpack_bootimg.py"
+        mkbootimg: Path = TOOLCHAIN / "mkbootimg" / "mkbootimg.py"
         avbtool: Command = Command(
             str(TOOLCHAIN / "build-tools" / "linux-x86" / "bin" / "avbtool")
         )
@@ -86,13 +84,14 @@ class FlashableBuilder:
             z.extractall(boot_tmp)
 
         log("Unpacking boot image...")
-        unpacker(f"--boot_img={boot_tmp / 'boot-5.10.img'}")
+        python(str(unpacker), f"--boot_img={boot_tmp / 'boot-5.10.img'}")
 
         log("Copying kernel image to boot directory...")
         self._stage_image(boot_tmp)
 
         log("Rebuilding boot.img with mkbootimg.py...")
-        mkbootimg(
+        python(
+            str(mkbootimg),
             "--header_version",
             "4",
             "--kernel",
