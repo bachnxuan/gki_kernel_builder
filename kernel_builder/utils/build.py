@@ -4,7 +4,6 @@ from sh import Command
 import re
 import sh
 from os import cpu_count
-from subprocess import CompletedProcess
 from pathlib import Path
 from dataclasses import dataclass, field
 from kernel_builder.pre_build.configurator import configurator
@@ -13,9 +12,7 @@ from kernel_builder.utils import env
 from kernel_builder.utils.fs import FileSystem
 from kernel_builder.utils.shell import Shell
 from kernel_builder.utils.log import log
-from typing import ClassVar, TypeAlias
-
-Proc: TypeAlias = CompletedProcess[bytes]
+from typing import ClassVar
 
 make: Command = sh.Command("make").bake(
     _env={"CC": "ccache clang", "CXX": "ccache clang++"},
@@ -36,13 +33,7 @@ class Builder:
     def _make(
         self, args: list[str] | None = None, *, jobs: int, out: str | Path
     ) -> None:
-        make(
-            f"-j{jobs}",
-            "CC=ccache clang",
-            "CXX=ccache clang++",
-            *(args or []),
-            f"O={out}",
-        )
+        make(f"-j{jobs}", *(args or []), f"O={out}", _cwd=Path.cwd())
 
     def build(
         self,
