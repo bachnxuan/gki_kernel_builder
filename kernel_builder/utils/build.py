@@ -1,5 +1,8 @@
+from sh import Command
+
+
 import re
-from sh import make
+import sh
 from os import cpu_count
 from subprocess import CompletedProcess
 from pathlib import Path
@@ -13,6 +16,10 @@ from kernel_builder.utils.log import log
 from typing import ClassVar, TypeAlias
 
 Proc: TypeAlias = CompletedProcess[bytes]
+
+make: Command = sh.Command("make").bake(
+    _env={"CC": "ccache clang", "CXX": "ccache clang++"},
+)
 
 
 @dataclass(slots=True)
@@ -30,7 +37,6 @@ class Builder:
         self, args: list[str] | None = None, *, jobs: int, out: str | Path
     ) -> None:
         make(
-            "make",
             f"-j{jobs}",
             "CC=ccache clang",
             "CXX=ccache clang++",

@@ -39,7 +39,7 @@ from locale import getpreferredencoding
 from queue import Empty, Queue
 from shlex import quote as shlex_quote
 from types import GeneratorType, ModuleType
-from typing import Any, Dict, Type, Union
+from typing import Any, Dict, Self, Type, Union
 
 """
 https://sh.readthedocs.io/en/latest/
@@ -355,7 +355,7 @@ class Command:
     def __init__(self, path, search_paths=...) -> None: ...
     def __getattribute__(self, name):  # -> Any:
         ...
-    def bake(self, *args, **kwargs):  # -> Self:
+    def bake(self: Self, *args: object, **kwargs: object) -> Self:
         """returns a new Command object after baking(freezing) the given
         command arguments which are used automatically when its exec'ed
 
