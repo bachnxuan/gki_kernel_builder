@@ -1,6 +1,6 @@
 # GKI Kernel Builder
 
-[![codecov](https://codecov.io/gh/bachnxuan/gki_kernel_builder/graph/badge.svg?token=EYKHK1OOC4)](https://codecov.io/gh/bachnxuan/gki_kernel_builder)
+[![codecov](https://codecov.io/gh/bachnxuan/gki_kernel_builder/graph/badge.svg?token=EYKHK1OOC4)](https://codecov.io/gh/bachnxuan/gki_kernel_builder) [![Telegram](https://img.shields.io/badge/Telegram-2CA5E0?logo=telegram&logoColor=white)](https://t.me/xaga_kernel)
 
 Effortlessly building Android Generic Kernel Image (GKI).
 
@@ -11,10 +11,9 @@ Effortlessly building Android Generic Kernel Image (GKI).
 - [Requirements](#requirements)
 - [Setup Kernel Builder](#setup-kernel-builder)
 - [Build the kernel](#build-the-kernel)
-  - [Usage](#usage)
-  - [Build](#build)
-  - [Build Example](#build-example)
-  - [Clean](#clean)
+  - [Quick Start](#quick-start)
+  - [CLI Structure](#cli-structure)
+  - [Example Commands](#example-commands)
 - [GitHub Workflows](#github-workflows)
 - [Configuration](#configuration)
 - [License](#license)
@@ -57,62 +56,44 @@ python3 -m pip install uv
 
 ## Build the kernel
 
-Builds are performed via the custom wrapper script `run.py`
+Builds are performed via the custom wrapper script `cli.py`
 
-### Usage
+### Quick Start
 
-   ```python
-   usage: run.py [-h] {build,clean} ...
+To build your kernel with default configuration:
 
-   Kernel Builder
+uv run cli.py build
 
-   positional arguments:
-   {build,clean}
-      build        Compile a kernel image
-      clean        Remove build artefacts
+### CLI Structure
 
-   options:
-   -h, --help     show this help message and exit
-   ```
+The CLI consists of the following commands:
 
-### Build
+build – Configure and compile the kernel
 
-   ```python
-   usage: run.py build build [-v/--verbose] [-k/--ksu {NONE,NEXT,SUKI}] [-s/--susfs] [-l/--lxc]
+clean – Clean up build artifacts
 
-   options:
-   -h, --help            show this help message and exit
-   -v, --verbose, --no-verbose
-                           Enable verbose output
-   -k {NONE,NEXT,SUKI}, --ksu {NONE,NEXT,SUKI}
-                           KernelSU variant (default: NONE)
-   -s, --susfs, --no-susfs
-                           Enable SUSFS support
-   ```
+View all available options:
 
-### Build Example
+```bash
+uv run cli.py --help
+```
 
-   `KernelSU Next` with `SUSFS` and no `LXC`:
+### Example Commands
 
-   ```bash
-   uv run run.py build -k NEXT -s
-   ```
+Build KernelSU NEXT with SUSFS (no LXC):
 
-   `SukiSU` with `SUSFS` and `LXC` disabled and verbose output:
+```bash
+uv run cli.py build -k NEXT -s
+```
 
-   ```bash
-   uv run run.py build --verbose --ksu SUKI --no-susfs --no-lxc
-   ```
+Build SukiSU with verbose logging, SUSFS and LXC disabled:
 
-### Clean
+```bash
+uv run cli.py build --verbose --ksu SUKI --no-susfs --no-lxc
+```
 
-   ```python
-   usage: run.py clean [-h] [-a | --all | --no-all]
-
-   options:
-   -h, --help           show this help message and exit
-   -a, --all, --no-all  Also delete dist/ (out) directory
-   ```
+> [!TIP]
+> Use `--verbose` or `-v` to see detailed logs, great for debugging!
 
 ---
 
@@ -121,9 +102,9 @@ Builds are performed via the custom wrapper script `run.py`
 1. **Fork** this repo to your GitHub account.
 
 2. **Add secret** `GH_TOKEN`
-   * PAT scopes (read and write): `workflow`, `content`
-   * Add PAT access to your release and kernel builder repo
-   * Repo → Settings → Secrets → Actions → **New secret**.
+   - PAT scopes (read and write): `workflow`, `content`
+   - Add PAT access to your release and kernel builder repo
+   - Repo → Settings → Secrets → Actions → **New secret**.
 
 3. **Optional Telegram secrets**
 
@@ -131,8 +112,8 @@ Builds are performed via the custom wrapper script `run.py`
 > Add the below Telegram secrets below when you want to notify completed build on Telegram.
 > The Telegram notify feature can be config via `NOTIFY` on workflows_dispatch and workflows_call input.
 
-   * `TG_BOT_TOKEN` – Telegram Bot Token
-   * `TG_CHAT_ID` – Telegram Chat ID
+- `TG_BOT_TOKEN` – Telegram Bot Token
+- `TG_CHAT_ID` – Telegram Chat ID
 
 ---
 
@@ -143,9 +124,9 @@ Builds are performed via the custom wrapper script `run.py`
 
 Customize your build by:
 
-* `config/config.py` – Contains kernel configuration settings.
-* `config/manifest.py` – Specifies repository sources and branches.
-* `kernel_builder.py` – The main script responsible for orchestrating the build.
+- `config/config.py` – Contains kernel configuration settings.
+- `config/manifest.py` – Specifies repository sources and branches.
+- `kernel_builder.py` – The main script responsible for orchestrating the build.
 
 > [!NOTE]
 > See the dedicated guide for more information: [Kernel Builder Configuration guide](https://github.com/bachnxuan/gki_kernel_builder/tree/master/kernel_builder/config)

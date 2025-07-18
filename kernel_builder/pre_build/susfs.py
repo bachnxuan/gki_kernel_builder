@@ -1,5 +1,6 @@
 import shutil
 import os
+import glob
 import re
 from typing import override
 from kernel_builder.interface.patcher import PatcherInterface
@@ -17,7 +18,7 @@ class SUSFSPatcher(PatcherInterface):
 
     def copy(self, src: Path, dest: Path):
         log(f"Copying content from folder {src} to {dest}")
-        for entry in os.scandir(src):
+        for entry in glob.glob(rf"{src}/*"):
             src_path: str = entry.path
             dst_path: str = os.path.join(dest, entry.name)
             if entry.is_dir():

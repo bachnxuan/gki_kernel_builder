@@ -104,7 +104,7 @@ jobs:
           LXC: ${{ inputs.LXC }}
           VERBOSE_OUTPUT: ${{ inputs.VERBOSE }}
         run: |
-          uv run run.py build
+          uv run cli.py build
 
       - name: Import exported environment
         id: build
