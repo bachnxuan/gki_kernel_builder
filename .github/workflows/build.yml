@@ -123,20 +123,21 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
+          submodules: true
 
       - name: Check required secrets
         env:
           NOTIFY: ${{ inputs.NOTIFY }}
         run: |
           ret=0
-      
+
           # Required telegram secrets for notify
           [[ "$NOTIFY" == "true" && -z "$TG_CHAT_ID" ]]   && echo "::error::Missing TG_CHAT_ID"   && ((ret++))
           [[ "$NOTIFY" == "true" && -z "$TG_BOT_TOKEN" ]] && echo "::error::Missing TG_BOT_TOKEN" && ((ret++))
-      
+
           # Mandatory secrets
           [[ -z "$GH_TOKEN" ]]                            && echo "::error::Missing GH_TOKEN"     && ((ret++))
-      
+
           if (( ret )); then
             echo "::error::Required secrets are missing. Please refer to README.md for proper configuration."
             exit $ret
@@ -167,7 +168,7 @@ jobs:
           echo "CCACHE_BASEDIR=$GITHUB_WORKSPACE" >> "$GITHUB_ENV"
           mkdir -p "$HOME/.ccache"
           ccache --version
-      
+
       - name: Restore ccache
         uses: actions/cache@v4
         with:
@@ -259,7 +260,7 @@ jobs:
           🔰 *KernelSU*: $KSU$([ "$KSU_VARIANT" != "NONE" ] && echo " | $KSU_VERSION")
           🎭 *SUSFS*: $([ "$SUSFS" = "true" ] && echo "Included | $SUSFS_VERSION" || echo "Disabled")
           📦 *LXC*: $([ "$LXC" = "true" ] && echo "Included" || echo "Disabled")
-          🛠️ *Toolchain*: `$TOOLCHAIN`
+          🛠️ *Toolchain*: \`$TOOLCHAIN\`
 
           [Workflow Run]($RUN_LINK)
           #ci\_$GITHUB_RUN_ID
