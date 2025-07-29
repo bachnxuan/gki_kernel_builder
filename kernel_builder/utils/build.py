@@ -61,7 +61,7 @@ class Builder:
         self._make(["olddefconfig"], jobs=jobs, out=out)
 
         log("Defconfig completed. Starting full build.")
-        self._make([target], jobs=jobs, out=out)
+        self._make([target, "modules"], jobs=jobs, out=out)
         log("Build completed successfully.")
 
     def get_kernel_version(self) -> str:
