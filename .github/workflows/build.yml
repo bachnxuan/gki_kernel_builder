@@ -85,6 +85,7 @@ on:
 
 env:
   DEBIAN_FRONTEND: noninteractive
+  MAN_DISABLE: true
   FORCE_COLOR: "1"
   TTY_COMPATIBLE: "1"
   TERM: xterm-256color
@@ -122,23 +123,20 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
-          submodules: true
 
       - name: Check required secrets
         env:
           NOTIFY: ${{ inputs.NOTIFY }}
         run: |
           ret=0
-
-          # Check for required secrets for telegram notify
-          if [[ "$NOTIFY" == "true" ]]; then
-            [[ -z "$TG_CHAT_ID"   ]] && { echo "::error::Missing TG_CHAT_ID";    ((ret++)); }
-            [[ -z "$TG_BOT_TOKEN" ]] && { echo "::error::Missing TG_BOT_TOKEN";  ((ret++)); }
-          fi
-
+      
+          # Required telegram secrets for notify
+          [[ "$NOTIFY" == "true" && -z "$TG_CHAT_ID" ]]   && echo "::error::Missing TG_CHAT_ID"   && ((ret++))
+          [[ "$NOTIFY" == "true" && -z "$TG_BOT_TOKEN" ]] && echo "::error::Missing TG_BOT_TOKEN" && ((ret++))
+      
           # Mandatory secrets
-          [[ -z "$GH_TOKEN" ]] && { echo "::error::Missing GH_TOKEN"; ((ret++)); }
-
+          [[ -z "$GH_TOKEN" ]]                            && echo "::error::Missing GH_TOKEN"     && ((ret++))
+      
           if (( ret )); then
             echo "::error::Required secrets are missing. Please refer to README.md for proper configuration."
             exit $ret
@@ -156,24 +154,20 @@ jobs:
 
       - name: Create venv & Install dependencies
         run: |
-          sudo apt update -qq
-          sudo apt install -qq bc bison ccache curl flex git tar wget aria2
+          sudo apt-get update -qq
+          sudo apt-get install -qq bc bison ccache curl flex git tar wget aria2
 
           uv venv
           uv sync --frozen --no-install-project
 
-      - name: Set up ccache directory
+      - name: Prepare ccache
         run: |
-          ccache --version
-          
+          echo "CCACHE_DIR=$HOME/.ccache" >> "$GITHUB_ENV"
           echo "CCACHE_COMPILERCHECK=content" >> "$GITHUB_ENV"
-          echo "CCACHE_DIR=$HOME/.ccache" >> $GITHUB_ENV
-          
-          ccache --set-config=max_size=5G
-          ccache --set-config=compression=true
-          ccache --set-config=compression_level=6
-          ccache --zero-stats
-
+          echo "CCACHE_BASEDIR=$GITHUB_WORKSPACE" >> "$GITHUB_ENV"
+          mkdir -p "$HOME/.ccache"
+          ccache --version
+      
       - name: Restore ccache
         uses: actions/cache@v4
         with:
@@ -182,14 +176,24 @@ jobs:
           restore-keys: |
             ccache-${{ github.job }}-
 
+      - name: Configure ccache
+        run: |
+          ccache --set-config=max_size=5G
+          ccache --set-config=compression=true
+          ccache --set-config=compression_level=3
+          ccache --zero-stats
+          ccache --show-config
+
       - name: Build
         env:
           KSU:   ${{ inputs.KSU }}
           SUSFS: ${{ inputs.SUSFS }}
           LXC:   ${{ inputs.LXC }}
-          VERBOSE_OUTPUT: ${{ inputs.VERBOSE }}
         run: |
           uv run cli.py build
+
+      - name: Show ccache stats
+        run: ccache -s
 
       - name: Import exported environment
         id: import_env
@@ -230,6 +234,7 @@ jobs:
           BUILD_DATE:        ${{ env.build_time }}
           KSU_VARIANT:       ${{ inputs.KSU }}
           LXC:               ${{ inputs.LXC }}
+          SUSFS:             ${{ inputs.SUSFS }}
           SUSFS_VERSION:     ${{ env.susfs_version }}
           KSU_VERSION:       ${{ env.ksu_version }}
           TOOLCHAIN:         ${{ env.toolchain }}
@@ -239,15 +244,22 @@ jobs:
           GITHUB_RUN_ID:     ${{ github.run_id }}
         run: |
           RUN_LINK="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          case "$KSU_VARIANT" in
+            OFFICIAL) KSU_NAME="KernelSU" ;;
+            SUKI)     KSU_NAME="SukiSU Ultra" ;;
+            NEXT)     KSU_NAME="KernelSU Next" ;;
+            NONE)     KSU_NAME="Disabled" ;;
+            *)        KSU_NAME="Unknown" ;;
+          esac
           MESSAGE=$(cat <<-EOF
           *$KERNEL_NAME Kernel CI*
 
           🐧 *Linux Version*: $VERSION
           📅 *Build Date*: $BUILD_DATE
-          🔰 *KernelSU*: $KSU_VARIANT$([ "$KSU" != "NONE" ] && echo " | $KSU_VERSION")
+          🔰 *KernelSU*: $KSU$([ "$KSU_VARIANT" != "NONE" ] && echo " | $KSU_VERSION")
           🎭 *SUSFS*: $([ "$SUSFS" = "true" ] && echo "Included | $SUSFS_VERSION" || echo "Disabled")
           📦 *LXC*: $([ "$LXC" = "true" ] && echo "Included" || echo "Disabled")
-          🛠️ *Toolchain*: $TOOLCHAIN
+          🛠️ *Toolchain*: `$TOOLCHAIN`
 
           [Workflow Run]($RUN_LINK)
           #ci\_$GITHUB_RUN_ID
