@@ -116,7 +116,7 @@ jobs:
       - name: Fail SUSFS requirement check
         if: ${{ inputs.SUSFS == 'true' && inputs.KSU == 'NONE' }}
         run: |
-          echo "Cannot use SUSFS without KernelSU"
+          echo "::error::Cannot use SUSFS without KernelSU"
           exit 1
 
       - name: Checkout code & init submodules
@@ -127,17 +127,23 @@ jobs:
 
       - name: Check required secrets
         env:
+          KSU: ${{ inputs.KSU }}
+          SUSFS: ${{ inputs.SUSFS }}
           NOTIFY: ${{ inputs.NOTIFY }}
         run: |
           ret=0
+          
+          error() {
+            echo "::error::$*"
+            (( ret+=1 ))
+            return 0
+          }
 
-          # Required telegram secrets for notify
-          [[ "$NOTIFY" == "true" && -z "$TG_CHAT_ID" ]]   && echo "::error::Missing TG_CHAT_ID"   && ((ret++))
-          [[ "$NOTIFY" == "true" && -z "$TG_BOT_TOKEN" ]] && echo "::error::Missing TG_BOT_TOKEN" && ((ret++))
-
-          # Mandatory secrets
-          [[ -z "$GH_TOKEN" ]]                            && echo "::error::Missing GH_TOKEN"     && ((ret++))
-
+          # Validate secrets
+          [[ "$NOTIFY" == "true" && -z "$TG_CHAT_ID"  ]]  && error "Missing TG_CHAT_ID (Telegram Chat ID)"
+          [[ "$NOTIFY" == "true" && -z "$TG_BOT_TOKEN" ]] && error "Missing TG_BOT_TOKEN (Telegram Bot Token)"
+          [[ -z "$GH_TOKEN" ]]                            && error "Missing GH_TOKEN (Github PAT)"
+ 
           if (( ret )); then
             echo "::error::Required secrets are missing. Please refer to README.md for proper configuration."
             exit $ret
