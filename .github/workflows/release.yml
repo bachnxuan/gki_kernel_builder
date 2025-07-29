@@ -76,8 +76,8 @@ jobs:
           if [[ -z "$LATEST" ]]; then
             RELEASE_TAG="v1.0"
           else
-            MAJOR=${LATEST%%.*}
-            MINOR=${LATEST##*.}
+            MAJOR=${LATEST%.*}
+            MINOR=${LATEST#*.}  
 
             if (( MINOR == 9 )); then
               (( MAJOR++ ))
