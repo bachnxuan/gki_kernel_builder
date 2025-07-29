@@ -175,7 +175,7 @@ jobs:
           path: ${{ env.CCACHE_DIR }}
           key: ccache-${{ github.job }}-${{ github.ref_name }}
           restore-keys: |
-            ccache-${{ github.job }}-
+            ccache-${{ github.job }}-${{ inputs.LXC }}
 
       - name: Configure ccache
         run: |
