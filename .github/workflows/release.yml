@@ -100,13 +100,37 @@ jobs:
           tag_name: ${{ env.RELEASE_TAG }}
           token: ${{ secrets.GH_TOKEN }}
           body: |
-            ## ${{ env.KERNEL_NAME }} Builds
-            - Kernel Version: **${{ env.KERNEL_VER }}**
-            - KernelSU: **${{ env.KSU_VER }}**
-            - SukiSU Ultra: **${{ env.SUKI_VER }}**
-            - KernelSU Next: **${{ env.NEXT_VER }}**
-            - SUSFS: **${{ env.SUSFS_VER }}**
-            - Built with: `${{ env.TOOLCHAIN }}`
+            # ${{ env.KERNEL_NAME }} Builds
+
+            ## Key Changes
+
+            **Add your key changes here.**
+
+            ## Build Information
+
+            | Component | Version |
+            |-----------|---------|
+            | **Kernel Version** | `${{ env.KERNEL_VER }}` |
+            | **KernelSU** | `${{ env.KSU_VER }}` |
+            | **SukiSU Ultra** | `${{ env.SUKI_VER }}` |
+            | **KernelSU Next** | `${{ env.NEXT_VER }}` |
+            | **SUSFS** | `${{ env.SUSFS_VER }}` |
+            | **Toolchain** | `${{ env.TOOLCHAIN }}` |
+            | **Build Date** | `${{ env.BUILD_DATE }}` |
+
+            ## Variants Suffixes
+
+            | Suffix | Description |
+            |--------|-------------|
+            | **-KSU** | Original KernelSU |
+            | **-SUKI** | SukiSU-Ultra |
+            | **-KSUN** | KernelSU-Next |
+            | **-Non-KSU** | No KernelSU |
+            | **-SUSFS** | SUSFS Support |
+            | **-LXC** | LXC Support |
+
+            > [!IMPORTANT]
+            > For installation instructions and issue reporting guidelines, please refer to the README.md
           generate_release_notes: true
           target_commitish: ${{ env.RELEASE_BRANCH }}
           files: release_files/**/*
