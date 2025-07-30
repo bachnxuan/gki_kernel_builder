@@ -1,7 +1,6 @@
 import os
 import re
 import sys
-from dataclasses import field
 from os import cpu_count
 from pathlib import Path
 
@@ -36,9 +35,8 @@ class Builder:
             "KBUILD_BUILD_USER": BUILD_USER,
             "KBUILD_BUILD_HOST": BUILD_HOST,
             "PATH": f"{self.clang_bin}{os.pathsep}{os.getenv('PATH', '')}",
-            "CCACHE_PREFIX": "ccache",
-            "CC": "clang",
-            "CXX": "clang++",
+            "CC": "ccache clang",
+            "CXX": "ccache clang++",
             "CLANG_TRIPLE": CLANG_TRIPLE,
             "CROSS_COMPILE": CROSS_COMPILE,
             "LLVM": LLVM,
