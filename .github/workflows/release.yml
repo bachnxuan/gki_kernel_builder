@@ -100,13 +100,13 @@ jobs:
           tag_name: ${{ env.RELEASE_TAG }}
           token: ${{ secrets.GH_TOKEN }}
           body: |
-            # ${{ env.KERNEL_NAME }} Builds
+            ### Key Changes
 
-            ## Key Changes
+            - Add your key changes here.
 
-            **Add your key changes here.**
+            ---
 
-            ## Build Information
+            ### Build Information
 
             | Component | Version |
             |-----------|---------|
@@ -118,13 +118,15 @@ jobs:
             | **Toolchain** | `${{ env.TOOLCHAIN }}` |
             | **Build Date** | `${{ env.BUILD_DATE }}` |
 
-            ## Variants Suffixes
+            ---
+
+            ### Variants Suffixes
 
             | Suffix | Description |
             |--------|-------------|
             | **-KSU** | Original KernelSU |
-            | **-SUKI** | SukiSU-Ultra |
-            | **-KSUN** | KernelSU-Next |
+            | **-SUKI** | SukiSU Ultra |
+            | **-KSUN** | KernelSU Next |
             | **-Non-KSU** | No KernelSU |
             | **-SUSFS** | SUSFS Support |
             | **-LXC** | LXC Support |
