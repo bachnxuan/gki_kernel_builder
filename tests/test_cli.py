@@ -16,7 +16,7 @@ def test_env_var(mocker: MockerFixture) -> None:
         app, ["build", "--ksu", "SUKI", "--no-susfs", "--lxc"]
     )
 
-    fake.assert_called_once_with()
+    fake.assert_called_once_with("SUKI", False, True)
 
     assert result.exit_code == 0
     assert result.output.strip() == "Start Build: ksu='SUKI', susfs=False, lxc=True"
@@ -46,7 +46,7 @@ def test_build_guard(
     if expect_exit:
         assert result.exit_code != 0
     else:
-        fake.assert_called_once_with()
+        fake.assert_called_once_with(ksu, susfs, True)
         assert result.exit_code == 0
 
 

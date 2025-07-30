@@ -16,9 +16,10 @@ class SourceManager:
 
     @staticmethod
     def git_simplifier(url: str) -> str:
-        with requests.get(url) as resp:
+        with requests.get(url, allow_redirects=True) as resp:
             parsed: ParseResult = urlparse(resp.url)
-            return f"{parsed.netloc}:{parsed.path.strip('/')}"
+            cleaned: str = parsed.path.strip("/").removesuffix(".git")
+            return f"{parsed.netloc}:{cleaned}"
 
     @staticmethod
     def is_simplified(url: str) -> bool:

@@ -7,16 +7,15 @@ from sh import Command, curl
 
 from kernel_builder.config.config import IMAGE_COMP
 from kernel_builder.constants import WORKSPACE
-from kernel_builder.utils.env import ksu_variant
 from kernel_builder.utils.fs import FileSystem
 from kernel_builder.utils.log import log
 
 
 class KPMPatcher:
-    def __init__(self) -> None:
+    def __init__(self, ksu: str) -> None:
         self.fs: FileSystem = FileSystem()
         self.image_comp: str = IMAGE_COMP
-        self.ksu: str = ksu_variant()
+        self.ksu: str = ksu
 
     def _open(self, path: Path, mode: str):
         if self.image_comp == "gz":

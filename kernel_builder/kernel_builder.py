@@ -11,29 +11,35 @@ from kernel_builder.constants import OUTPUT, TOOLCHAIN, WORKSPACE
 from kernel_builder.post_build.export_env import GithubExportEnv
 from kernel_builder.post_build.flashable import FlashableBuilder
 from kernel_builder.post_build.kpm import KPMPatcher
-from kernel_builder.pre_build.setup_env import SetupEnvironment
+from kernel_builder.pre_build.ksu import KSUInstaller
+from kernel_builder.pre_build.lxc import LXCPatcher
 from kernel_builder.pre_build.susfs import SUSFSPatcher
 from kernel_builder.pre_build.variants import Variants
 from kernel_builder.utils.build import Builder
 from kernel_builder.utils.clang import fetch_clang_url
 from kernel_builder.utils.command import aria2c
-from kernel_builder.utils.env import ksu_variant, lxc_enabled, susfs_enabled
 from kernel_builder.utils.fs import FileSystem
 from kernel_builder.utils.log import log
 from kernel_builder.utils.source import SourceManager
 
 
 class KernelBuilder:
-    def __init__(self) -> None:
+    def __init__(self, ksu: str, susfs: bool, lxc: bool) -> None:
+        self.ksu_variant: str = ksu
+        self.use_susfs: bool = susfs
+        self.use_lxc: bool = lxc
+
+        self.kpm: KPMPatcher = KPMPatcher(ksu)
+        self.ksu: KSUInstaller = KSUInstaller(ksu, susfs)
+        self.susfs: SUSFSPatcher = SUSFSPatcher(ksu, susfs)
+        self.lxc: LXCPatcher = LXCPatcher(lxc)
+        self.export_env: GithubExportEnv = GithubExportEnv(ksu, susfs, lxc)
+        self.variants: Variants = Variants(ksu, susfs, lxc)
+
         self.builder: Builder = Builder()
-        self.variants: Variants = Variants()
-        self.environment: SetupEnvironment = SetupEnvironment()
-        self.kpm: KPMPatcher = KPMPatcher()
         self.fs: FileSystem = FileSystem()
         self.source: SourceManager = SourceManager()
-        self.susfs: SUSFSPatcher = SUSFSPatcher()
         self.flashable: FlashableBuilder = FlashableBuilder()
-        self.export_env: GithubExportEnv = GithubExportEnv()
 
         boot_dir: Path = WORKSPACE / "out" / "arch" / "arm64" / "boot"
         image: Path = boot_dir / "Image"
@@ -45,10 +51,7 @@ class KernelBuilder:
         """
         Run the complete build process.
         """
-        log(f"Build Config: {ksu_variant()=}, {susfs_enabled()=}, {lxc_enabled()=}")
-
-        log("Setting up environment variables...")
-        self.environment.setup_env()
+        log(f"Build Config: {self.ksu_variant=}, {self.use_susfs=}, {self.use_lxc=}")
 
         # Reset paths
         reset_paths = [WORKSPACE, TOOLCHAIN, OUTPUT]
@@ -78,7 +81,9 @@ class KernelBuilder:
         self.fs.cd(WORKSPACE)
 
         # Pre-build steps
-        self.variants.setup()
+        self.ksu.install()
+        self.susfs.apply()
+        self.lxc.apply()
 
         # Main build steps
         self.builder.build()

@@ -16,9 +16,9 @@ from kernel_builder.utils.log import log
 
 
 class GithubExportEnv:
-    def __init__(self) -> None:
+    def __init__(self, ksu: str, susfs: bool, lxc: bool) -> None:
         self.builder: Builder = Builder()
-        self.variants: Variants = Variants()
+        self.variants: Variants = Variants(ksu, susfs, lxc)
         self.gh_api: GithubAPI = GithubAPI()
         self.env_file: Path = ROOT / "github.env"
 

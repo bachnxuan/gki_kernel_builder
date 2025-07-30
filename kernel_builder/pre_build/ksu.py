@@ -4,7 +4,6 @@ import subprocess
 from pathlib import Path
 
 from kernel_builder.constants import PATCHES, WORKSPACE
-from kernel_builder.utils import env
 from kernel_builder.utils.command import apply_patch
 from kernel_builder.utils.github import GithubAPI
 from kernel_builder.utils.log import log
@@ -18,21 +17,19 @@ class KSUInstaller:
         WORKSPACE / "drivers" / "staging" / "kernelsu",
     ]
 
-    def __init__(self) -> None:
+    def __init__(self, ksu: str, susfs: bool) -> None:
         self.source: SourceManager = SourceManager()
         self.gh_api: GithubAPI = GithubAPI()
-        self.variant: str = env.ksu_variant()
-        self.use_susfs: bool = env.susfs_enabled()
+        self.variant: str = ksu
+        self.use_susfs: bool = susfs
 
     def _install_ksu(self, url: str, ref: str | None) -> None:
         # Normalize URL format
         if not self.source.is_simplified(url):
             url = self.source.git_simplifier(url)
 
-        # Extract user and repo
-        user, repo = url.split(":", 1)[1].split("/", 1)
-
         # Fetch latest tag
+        user, repo = url.split(":", 1)[1].split("/", 1)
         latest_tag: str = self._fetch_latest_tag(user, repo)
         ref = ref or latest_tag
 
@@ -81,11 +78,13 @@ class KSUInstaller:
             if not driver.exists():
                 return
             elif driver.is_symlink():
+                log("KernelSU driver symlink detected")
                 target: Path = (driver.parent / driver.readlink()).resolve(strict=False)
                 driver.unlink()
                 if target.exists() and target.is_dir():
                     shutil.rmtree(target)
             elif driver.is_dir():
+                log("KernelSU driver folder detected")
                 shutil.rmtree(driver)
 
     def install(self) -> None:
@@ -105,12 +104,9 @@ class KSUInstaller:
             case "NEXT":
                 repo = "github.com:KernelSU-Next/KernelSU-Next"
                 ref = "next"
-            case "SUKI" if self.use_susfs:
-                repo = "github.com:SukiSU-Ultra/SukiSU-Ultra"
-                ref = "susfs-main"
             case "SUKI":
                 repo = "github.com:SukiSU-Ultra/SukiSU-Ultra"
-                ref = "nongki"
+                ref = "susfs-main" if self.use_susfs else "nongki"
             case _:
                 log(f"Unknown KernelSU variant {variant}, skipping install")
                 return

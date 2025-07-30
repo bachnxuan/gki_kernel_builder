@@ -1,31 +1,53 @@
 import os
 import re
 import sys
-from dataclasses import dataclass, field
+from dataclasses import field
 from os import cpu_count
 from pathlib import Path
-from typing import ClassVar
 
 from sh import make
 
-from kernel_builder.config.config import DEFCONFIG, IMAGE_COMP
-from kernel_builder.constants import WORKSPACE
+from kernel_builder.config.config import BUILD_HOST, BUILD_USER, DEFCONFIG, IMAGE_COMP
+from kernel_builder.constants import (
+    CLANG_TRIPLE,
+    CROSS_COMPILE,
+    LLVM,
+    LLVM_IAS,
+    LTO_CLANG_FULL,
+    LTO_CLANG_THIN,
+    TOOLCHAIN,
+    WORKSPACE,
+)
 from kernel_builder.pre_build.configurator import configurator
-from kernel_builder.utils import env
 from kernel_builder.utils.fs import FileSystem
 from kernel_builder.utils.log import log
 
 
-@dataclass(slots=True)
 class Builder:
-    fs: FileSystem = field(default_factory=FileSystem)
+    def __init__(self) -> None:
+        self.fs: FileSystem = field(default_factory=FileSystem)
+        self.clang_bin: Path = TOOLCHAIN / "clang" / "bin"
+        self.workspace: Path = WORKSPACE
+        self.defconfig: str = DEFCONFIG
+        self.image_comp: str = IMAGE_COMP
+        self.jobs: int = field(default_factory=lambda: cpu_count() or 1)
 
-    workspace: ClassVar[Path] = WORKSPACE
-    defconfig: ClassVar[str] = DEFCONFIG
-    image_comp: ClassVar[str] = IMAGE_COMP
-    jobs: int = field(default_factory=lambda: cpu_count() or 1)
-    ksu_variant: str = field(default_factory=env.ksu_variant)
-    use_susfs: bool = field(default_factory=env.susfs_enabled)
+        overrides = {
+            "KBUILD_BUILD_USER": BUILD_USER,
+            "KBUILD_BUILD_HOST": BUILD_HOST,
+            "PATH": f"{self.clang_bin}{os.pathsep}{os.getenv('PATH', '')}",
+            "CCACHE_PREFIX": "ccache",
+            "CC": "clang",
+            "CXX": "clang++",
+            "CLANG_TRIPLE": CLANG_TRIPLE,
+            "CROSS_COMPILE": CROSS_COMPILE,
+            "LLVM": LLVM,
+            "LLVM_IAS": LLVM_IAS,
+            "CONFIG_LTO_CLANG_THIN": LTO_CLANG_THIN,
+            "CONFIG_LTO_CLANG_FULL": LTO_CLANG_FULL,
+            "LD": str(self.clang_bin / "ld.lld"),
+        }
+        self.make_env: dict[str, str] = {**os.environ, **overrides}
 
     def _make(
         self, args: list[str] | None = None, *, jobs: int, out: str | Path
@@ -35,7 +57,7 @@ class Builder:
             *(args or []),
             f"O={out}",
             _cwd=Path.cwd(),
-            _env={**os.environ, "CC": "ccache clang", "CXX": "ccache clang++"},
+            _env={**self.make_env},
             _out=sys.stdout,
             _err=sys.stderr,
         )

@@ -7,14 +7,13 @@ from typing import override
 from kernel_builder.constants import WILD_PATCHES, WORKSPACE
 from kernel_builder.interface.patcher import PatcherInterface
 from kernel_builder.utils.command import apply_patch
-from kernel_builder.utils.env import ksu_variant, susfs_enabled
 from kernel_builder.utils.log import log
 
 
 class SUSFSPatcher(PatcherInterface):
-    def __init__(self) -> None:
-        self.ksu_variant: str = ksu_variant()
-        self.susfs: bool = susfs_enabled()
+    def __init__(self, ksu: str, susfs: bool) -> None:
+        self.ksu_variant: str = ksu
+        self.susfs: bool = susfs
 
     def copy(self, src: Path, dest: Path):
         log(f"Copying content from folder {src} to {dest}")

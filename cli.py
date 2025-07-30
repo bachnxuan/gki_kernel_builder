@@ -68,7 +68,8 @@ def build(
         LXC=str(lxc).lower(),
     )
 
-    KernelBuilder().run_build()
+    builder: KernelBuilder = KernelBuilder(ksu, susfs, lxc)
+    builder.run_build()
 
 
 @app.command()
