@@ -25,12 +25,12 @@ from kernel_builder.utils.log import log
 
 class Builder:
     def __init__(self) -> None:
-        self.fs: FileSystem = field(default_factory=FileSystem)
+        self.fs: FileSystem = FileSystem()
         self.clang_bin: Path = TOOLCHAIN / "clang" / "bin"
         self.workspace: Path = WORKSPACE
         self.defconfig: str = DEFCONFIG
         self.image_comp: str = IMAGE_COMP
-        self.jobs: int = field(default_factory=lambda: cpu_count() or 1)
+        self.jobs: int = cpu_count() or 1
 
         overrides = {
             "KBUILD_BUILD_USER": BUILD_USER,
