@@ -263,7 +263,7 @@ jobs:
 
           🐧 *Linux Version*: $VERSION
           📅 *Build Date*: $BUILD_DATE
-          🔰 *KernelSU*: $KSU$([ "$KSU_VARIANT" != "NONE" ] && echo " | $KSU_VERSION")
+          🔰 *KernelSU*: $KSU_NAME$([ "$KSU_VARIANT" != "NONE" ] && echo " | $KSU_VERSION")
           🎭 *SUSFS*: $([ "$SUSFS" = "true" ] && echo "Included | $SUSFS_VERSION" || echo "Disabled")
           📦 *LXC*: $([ "$LXC" = "true" ] && echo "Included" || echo "Disabled")
           🛠️ *Toolchain*: \`$TOOLCHAIN\`
